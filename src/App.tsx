@@ -50,8 +50,8 @@ export default function App() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
 
-  // DGS Exam Date (Mocked to June 30, 2026 for this context)
-  const dgsDate = new Date(2026, 7, 19); // Note: Month is 0-indexed in JS (5 = June)
+  // DGS Exam Date
+  const dgsDate = new Date(2026, 6, 19); // 19 July 2026 (Month is 0-indexed in JS, 6 = July)
   const daysLeft = differenceInDays(dgsDate, new Date());
 
   // Fetch initial data
@@ -81,10 +81,35 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30 overflow-hidden">
+    <div className="flex flex-col md:flex-row h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500/30 overflow-hidden">
       
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 p-6 flex flex-col shrink-0">
+      {/* Top Mobile Header */}
+      <header className="md:hidden flex items-center justify-between p-4 bg-slate-900 border-b border-slate-800 shrink-0 z-10">
+        <div className="flex flex-col">
+          <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent italic leading-none">
+            DGS Koçu AI
+          </h1>
+          <span className="text-[9px] text-slate-500 uppercase tracking-widest font-semibold mt-1">Geliştirici Sürümü</span>
+        </div>
+        <button 
+          onClick={() => {
+            const current = prompt("Gemini API Key:", apiKey);
+            if (current !== null) {
+              setApiKey(current);
+              localStorage.setItem('dgs_gemini_key', current);
+            }
+          }}
+          className={cn(
+            "p-2 rounded-lg border flex items-center justify-center transition-colors",
+            apiKey ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-slate-800 border-slate-700 text-slate-400"
+          )}
+        >
+          <Key className="w-4 h-4" />
+        </button>
+      </header>
+
+      {/* Sidebar - Desktop */}
+      <aside className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 p-6 flex-col shrink-0">
         <div className="mb-10">
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent italic">
             DGS Sınav Koçu AI
@@ -124,12 +149,20 @@ export default function App() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto pb-24 md:pb-8">
         {activeTab === 'dashboard' && <DashboardView subjects={subjects} exams={exams} daysLeft={daysLeft} />}
         {activeTab === 'subjects' && <SubjectsView subjects={subjects} setSubjects={setSubjects} />}
         {activeTab === 'exams' && <ExamsView exams={exams} setExams={setExams} />}
         {activeTab === 'coach' && <CoachView subjects={subjects} exams={exams} apiKey={apiKey} />}
       </main>
+
+      {/* Bottom Nav - Mobile */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 z-50 px-2 py-2 flex justify-around items-center">
+        <MobileNavItem icon={LayoutDashboard} label="Özet" isActive={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+        <MobileNavItem icon={BookOpen} label="Konular" isActive={activeTab === 'subjects'} onClick={() => setActiveTab('subjects')} />
+        <MobileNavItem icon={PencilLine} label="Deneme" isActive={activeTab === 'exams'} onClick={() => setActiveTab('exams')} />
+        <MobileNavItem icon={Bot} label="AI Koç" isActive={activeTab === 'coach'} onClick={() => setActiveTab('coach')} />
+      </nav>
 
     </div>
   );
@@ -152,6 +185,26 @@ function NavItem({ icon: Icon, label, isActive, onClick }: { icon: any, label: s
     >
       <Icon className={cn("w-5 h-5", isActive ? "text-blue-400" : "text-slate-400 group-hover:text-white")} />
       <span className="font-medium">{label}</span>
+    </button>
+  );
+}
+
+function MobileNavItem({ icon: Icon, label, isActive, onClick }: { icon: any, label: string, isActive: boolean, onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-center justify-center p-2 rounded-xl transition-all flex-1",
+        isActive ? "text-blue-400" : "text-slate-500"
+      )}
+    >
+      <div className={cn(
+        "p-1.5 rounded-full mb-1 transition-all",
+        isActive ? "bg-blue-500/10" : "bg-transparent"
+      )}>
+        <Icon className={cn("w-5 h-5", isActive ? "scale-110" : "scale-100")} />
+      </div>
+      <span className="text-[10px] font-medium leading-none">{label}</span>
     </button>
   );
 }
@@ -179,14 +232,14 @@ function DashboardView({ subjects, exams, daysLeft }: { subjects: Subject[], exa
 
   return (
     <div className="h-full flex flex-col animate-in fade-in duration-500">
-      <header className="flex justify-between items-end mb-8">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
         <div>
-          <h2 className="text-3xl font-light text-slate-400">Merhaba, <span className="text-white font-bold">Öğrenci</span> 👋</h2>
-          <p className="text-slate-500 mt-1">İşte bugünkü ilerleme durumun ve istatistiklerin.</p>
+          <h2 className="text-2xl md:text-3xl font-light text-slate-400">Merhaba, <span className="text-white font-bold">Öğrenci</span> 👋</h2>
+          <p className="text-sm md:text-base text-slate-500 mt-1">İşte bugünkü ilerleme durumun ve istatistiklerin.</p>
         </div>
-        <div className="text-right bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <div className="w-full md:w-auto text-left md:text-right bg-slate-900 border border-slate-800 p-4 rounded-2xl flex md:flex-col justify-between items-center md:items-end">
           <p className="text-xs text-slate-500 uppercase font-bold tracking-widest">Sınava Kalan</p>
-          <p className="text-3xl font-black text-blue-500">{daysLeft > 0 ? daysLeft : 0} <span className="text-sm text-slate-400 font-normal tracking-normal">Gün</span></p>
+          <p className="text-2xl md:text-3xl font-black text-blue-500">{daysLeft > 0 ? daysLeft : 0} <span className="text-sm text-slate-400 font-normal tracking-normal">Gün</span></p>
         </div>
       </header>
 
@@ -264,28 +317,32 @@ function DashboardView({ subjects, exams, daysLeft }: { subjects: Subject[], exa
           </div>
         </div>
 
-        {/* Mini Advice Card / Other info */}
-        <div className="col-span-12 md:col-span-4 row-span-4 bg-slate-800 border border-slate-700 rounded-3xl p-6">
+        {/* Exam Info Card */}
+        <div className="col-span-12 md:col-span-4 row-span-4 bg-slate-800 border border-slate-700 rounded-3xl p-6 flex flex-col">
           <div className="flex items-center space-x-2 mb-4 text-white">
-            <div className="p-2 bg-indigo-500 rounded-lg text-white">
-              <Brain className="w-5 h-5" />
+            <div className="p-2 bg-indigo-500 rounded-lg text-white shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+              <Target className="w-5 h-5" />
             </div>
-            <h3 className="font-bold text-white">Özet Bilgi</h3>
+            <h3 className="font-bold text-white">DGS 2026 Takvimi</h3>
           </div>
-          <div className="space-y-4">
-            <div className="p-4 bg-slate-950/50 rounded-2xl border border-slate-700/50">
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Toplam çözülen / izlenen konu sayısı: <span className="text-blue-400 font-bold">{finished}</span>
-              </p>
+          <div className="space-y-3 flex-1">
+            <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-700/50 transition-colors hover:border-blue-500/30">
+              <p className="text-xs text-slate-400">Sınav Tarihi</p>
+              <p className="text-sm font-semibold text-blue-400 mt-0.5">19 Temmuz 2026 Pazar, 10:15</p>
             </div>
-            <div className="p-4 bg-slate-950/50 rounded-2xl border border-slate-700/50">
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Kayıtlı deneme sayısı: <span className="text-emerald-400 font-bold">{exams.length}</span>
-              </p>
+            <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-700/50 transition-colors hover:border-emerald-500/30">
+              <p className="text-xs text-slate-400">Başvurular</p>
+              <p className="text-sm font-semibold text-emerald-400 mt-0.5">15 Mayıs - 02 Haziran 2026</p>
+              <p className="text-[10px] text-slate-500 mt-1">Geç Başvuru: 11 Haziran 2026</p>
             </div>
-            <p className="text-xs text-slate-500 mt-4 px-2">
-              Detaylı analiz için sol menüden AI Sınav Koçu'nu ziyaret edebilirsin.
-            </p>
+            <div className="p-3 bg-slate-950/50 rounded-2xl border border-slate-700/50 transition-colors hover:border-rose-500/30">
+              <p className="text-xs text-slate-400">Sonuç Açıklama</p>
+              <p className="text-sm font-semibold text-rose-400 mt-0.5">13 Ağustos 2026 Perşembe</p>
+            </div>
+            <div className="flex justify-between items-center px-2 mt-4 pt-4 border-t border-slate-700/50">
+              <p className="text-xs text-slate-400">Sınav Süresi</p>
+              <p className="text-sm font-bold text-slate-200">135 dk</p>
+            </div>
           </div>
         </div>
 
@@ -318,7 +375,7 @@ function SubjectsView({ subjects, setSubjects }: { subjects: Subject[], setSubje
   const renderSubjectBlock = (category: string, subs: Subject[]) => (
     <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-sm">
       <div className={cn(
-        "px-6 py-4 font-semibold text-lg border-b border-slate-800 flex items-center gap-2",
+        "px-4 md:px-6 py-4 font-semibold text-base md:text-lg border-b border-slate-800 flex items-center gap-2",
         category === 'Matematik' ? "text-blue-400" : "text-emerald-400"
       )}>
         {category}
@@ -328,14 +385,14 @@ function SubjectsView({ subjects, setSubjects }: { subjects: Subject[], setSubje
       </div>
       <div className="divide-y divide-slate-800/50">
         {subs.map(s => (
-          <div key={s.id} className="flex items-center justify-between px-6 py-3 hover:bg-slate-800/30 transition-colors group">
+          <div key={s.id} className="flex flex-col sm:flex-row sm:items-center justify-between px-4 md:px-6 py-4 gap-3 hover:bg-slate-800/30 transition-colors group">
             <span className={cn(
               "text-sm font-medium transition-colors",
               (s.watched && s.solved && s.reviewed) ? "text-slate-500 line-through" : "text-slate-200"
             )}>
               {s.name}
             </span>
-            <div className="flex gap-4">
+            <div className="flex gap-3 md:gap-4 flex-wrap">
               <Checkbox label="Video" checked={s.watched} onChange={() => updateSubject(s.id, 'watched', s.watched)} />
               <Checkbox label="Soru" checked={s.solved} onChange={() => updateSubject(s.id, 'solved', s.solved)} />
               <Checkbox label="Tekrar" checked={s.reviewed} onChange={() => updateSubject(s.id, 'reviewed', s.reviewed)} />
@@ -436,10 +493,10 @@ function ExamsView({ exams, setExams }: { exams: Exam[], setExams: React.Dispatc
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <header className="mb-8">
-        <h2 className="text-3xl font-light text-slate-400"><span className="text-white font-bold">Deneme</span> Girişi</h2>
-        <p className="text-slate-500 mt-1">Netlerini hesapla ve kaydet.</p>
+    <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
+      <header className="mb-6 md:mb-8">
+        <h2 className="text-2xl md:text-3xl font-light text-slate-400"><span className="text-white font-bold">Deneme</span> Girişi</h2>
+        <p className="text-sm md:text-base text-slate-500 mt-1">Netlerini hesapla ve kaydet.</p>
       </header>
 
       {/* Form */}
@@ -497,33 +554,33 @@ function ExamsView({ exams, setExams }: { exams: Exam[], setExams: React.Dispatc
       </form>
 
       {/* Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-sm mt-8">
-        <table className="w-full text-left border-collapse">
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-x-auto shadow-sm mt-8">
+        <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="bg-slate-800/30 text-slate-400 text-xs uppercase tracking-wider">
-              <th className="px-6 py-4 font-semibold">Tarih & Deneme</th>
-              <th className="px-6 py-4 font-semibold">Matematik</th>
-              <th className="px-6 py-4 font-semibold">Türkçe</th>
-              <th className="px-6 py-4 font-semibold text-blue-400">Toplam Net</th>
-              <th className="px-6 py-4 font-semibold text-right">İşlem</th>
+              <th className="px-4 md:px-6 py-4 font-semibold">Tarih & Deneme</th>
+              <th className="px-4 md:px-6 py-4 font-semibold">Matematik</th>
+              <th className="px-4 md:px-6 py-4 font-semibold">Türkçe</th>
+              <th className="px-4 md:px-6 py-4 font-semibold text-blue-400">Toplam Net</th>
+              <th className="px-4 md:px-6 py-4 font-semibold text-right">İşlem</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/50 text-sm">
             {exams.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-slate-500">Kayıtlı deneme bulunamadı.</td>
+                <td colSpan={5} className="px-4 md:px-6 py-8 text-center text-slate-500">Kayıtlı deneme bulunamadı.</td>
               </tr>
             ) : exams.map(exam => (
               <tr key={exam.id} className="hover:bg-slate-800/20 transition-colors">
-                <td className="px-6 py-4">
+                <td className="px-4 md:px-6 py-4">
                   <div className="font-medium text-slate-200">{exam.name}</div>
                   <div className="text-xs text-slate-500">{format(new Date(exam.date), "dd MMM yyyy")}</div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 md:px-6 py-4">
                   <div className="text-slate-300">{exam.math_net} Net</div>
                   <div className="text-xs text-slate-500">{exam.math_correct}D {exam.math_wrong}Y</div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-4 md:px-6 py-4">
                   <div className="text-slate-300">{exam.turk_net} Net</div>
                   <div className="text-xs text-slate-500">{exam.turk_correct}D {exam.turk_wrong}Y</div>
                 </td>
@@ -618,7 +675,7 @@ function CoachView({ subjects, exams, apiKey }: { subjects: Subject[], exams: Ex
       </div>
 
       {(response || loading) && (
-        <div className="flex-1 bg-slate-900 border border-slate-800 rounded-3xl p-6 lg:p-10 shadow-sm overflow-auto">
+        <div className="flex-1 bg-slate-900 border border-slate-800 rounded-3xl p-4 md:p-6 lg:p-10 shadow-sm overflow-auto text-sm md:text-base">
           {loading && !response ? (
             <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-4">
               <div className="relative">
