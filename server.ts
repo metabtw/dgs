@@ -184,7 +184,7 @@ app.post("/api/coach", async (req, res) => {
     }
 
     const response = await currentAi.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-pro",
       contents: prompt,
       config: {
         systemInstruction,
@@ -194,7 +194,11 @@ app.post("/api/coach", async (req, res) => {
     res.json({ text: response.text });
   } catch (error: any) {
     console.error("AI Coach Error:", error);
-    res.status(500).json({ error: "AI Coach ile iletişimde sorun oluştu: " + error.message });
+    let errorMsg = error.message;
+    if (errorMsg && errorMsg.includes("503") && errorMsg.includes("high demand")) {
+      errorMsg = "Google Gemini sunucularında şu an yoğunluk yaşanıyor (High Demand 503). Lütfen birkaç dakika sonra tekrar deneyin.";
+    }
+    res.status(500).json({ error: errorMsg });
   }
 });
 

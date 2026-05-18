@@ -231,7 +231,7 @@ function DashboardView({ subjects, exams, daysLeft }: { subjects: Subject[], exa
   const diff = lastExam - prevExam;
 
   return (
-    <div className="h-full flex flex-col animate-in fade-in duration-500">
+    <div className="min-h-full flex flex-col animate-in fade-in duration-500">
       <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
         <div>
           <h2 className="text-2xl md:text-3xl font-light text-slate-400">Merhaba, <span className="text-white font-bold">Öğrenci</span> 👋</h2>
@@ -244,10 +244,10 @@ function DashboardView({ subjects, exams, daysLeft }: { subjects: Subject[], exa
       </header>
 
       {/* Bento Grid */}
-      <div className="grid grid-cols-12 grid-rows-6 gap-4 min-h-[550px] flex-1">
+      <div className="flex flex-col md:grid md:grid-cols-12 md:grid-rows-6 gap-4 md:min-h-[550px] flex-1">
         
         {/* Total Progress Card */}
-        <div className="col-span-12 md:col-span-4 row-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between">
+        <div className="md:col-span-4 md:row-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-tighter">Genel Konu İlerlemesi</h3>
             <p className="text-4xl font-bold mt-2">%{totalPerc}</p>
@@ -264,7 +264,7 @@ function DashboardView({ subjects, exams, daysLeft }: { subjects: Subject[], exa
         </div>
 
         {/* Avg Net Card */}
-        <div className="col-span-12 md:col-span-4 row-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between">
+        <div className="md:col-span-4 md:row-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-tighter">Net Ortalaması</h3>
             <p className="text-4xl font-bold mt-2 text-emerald-400">{avgNet}</p>
@@ -279,7 +279,7 @@ function DashboardView({ subjects, exams, daysLeft }: { subjects: Subject[], exa
         </div>
 
         {/* Motivation Card */}
-        <div className="col-span-12 md:col-span-4 row-span-2 bg-blue-600 rounded-3xl p-6 text-white relative overflow-hidden">
+        <div className="md:col-span-4 md:row-span-2 bg-blue-600 rounded-3xl p-6 text-white relative overflow-hidden">
           <svg className="absolute -right-4 -bottom-4 w-32 h-32 text-white/10" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd"></path></svg>
           <p className="text-xs font-bold uppercase opacity-80 mb-2">Günün Sözü</p>
           <p className="text-lg font-serif italic relative z-10 leading-snug">
@@ -288,37 +288,39 @@ function DashboardView({ subjects, exams, daysLeft }: { subjects: Subject[], exa
         </div>
 
         {/* Main Performance Chart */}
-        <div className="col-span-12 md:col-span-8 row-span-4 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col">
+        <div className="md:col-span-8 md:row-span-4 bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col min-h-[300px] md:min-h-0">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-bold text-white">Deneme Analizi</h3>
           </div>
-          <div className="flex-1 min-h-[200px]">
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                  <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} dy={10} />
-                  <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} dx={-10} />
-                  <RechartsTooltip 
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '12px' }}
-                    itemStyle={{ color: '#f1f5f9' }}
-                  />
-                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Line type="monotone" dataKey="Toplam" stroke="#818cf8" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
-                  <Line type="monotone" dataKey="Matematik" stroke="#3b82f6" strokeWidth={2} opacity={0.7} />
-                  <Line type="monotone" dataKey="Türkçe" stroke="#10b981" strokeWidth={2} opacity={0.7} />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-slate-500 border border-dashed border-slate-700/50 rounded-xl">
-                Henüz deneme verisi bulunmuyor. Deneme Girişi sayfasından ekleyin.
-              </div>
-            )}
+          <div className="flex-1 min-h-[250px] relative w-full">
+            <div className="absolute inset-0">
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                    <XAxis dataKey="name" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} dy={10} />
+                    <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} dx={-10} />
+                    <RechartsTooltip 
+                      contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '12px' }}
+                      itemStyle={{ color: '#f1f5f9' }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Line type="monotone" dataKey="Toplam" stroke="#818cf8" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="Matematik" stroke="#3b82f6" strokeWidth={2} opacity={0.7} />
+                    <Line type="monotone" dataKey="Türkçe" stroke="#10b981" strokeWidth={2} opacity={0.7} />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-slate-500 border border-dashed border-slate-700/50 rounded-xl">
+                  Henüz deneme verisi bulunmuyor. Deneme Girişi sayfasından ekleyin.
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Exam Info Card */}
-        <div className="col-span-12 md:col-span-4 row-span-4 bg-slate-800 border border-slate-700 rounded-3xl p-6 flex flex-col">
+        <div className="md:col-span-4 md:row-span-4 bg-slate-800 border border-slate-700 rounded-3xl p-6 flex flex-col">
           <div className="flex items-center space-x-2 mb-4 text-white">
             <div className="p-2 bg-indigo-500 rounded-lg text-white shadow-[0_0_15px_rgba(99,102,241,0.3)]">
               <Target className="w-5 h-5" />
@@ -648,7 +650,7 @@ function CoachView({ subjects, exams, apiKey }: { subjects: Subject[], exams: Ex
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 h-full flex flex-col pb-10">
+    <div className="space-y-8 animate-in fade-in duration-500 min-h-full flex flex-col pb-10">
       <header className="mb-4 shrink-0 flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-light text-slate-400 mb-2 flex items-center gap-3">
