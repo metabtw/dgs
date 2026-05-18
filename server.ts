@@ -154,15 +154,26 @@ app.post("/api/coach", async (req, res) => {
     
     const prompt = `
       Öğrencinin bitirdiği konular: ${finishedSubjects || 'Henüz biten konu yok.'}
-      Öğrencinin eksik listesi (hiç çalışılmayan veya sorusu çözülmeyen): ${missingSubjects || 'Tüm konular bitti!'}
+      Öğrencinin hiç çalışmadığı/eksik konular: ${missingSubjects || 'Tüm konular bitti!'}
       
       Son 3 Deneme Sonuçları:
       ${examSummary || 'Henüz girilen deneme yok.'}
       
-      Yukarıdaki verileri dikkate alarak öğrenciye somut bir haftalık çalışma stratejisi üret.
+      Yukarıdaki güncel tabloyu ve DGS'nin süre/net dinamiklerini dikkate alarak öğrenciye somut bir haftalık çalışma stratejisi üret.
     `;
 
-    const systemInstruction = "Sen DGS konusunda uzman, disiplinli ve motive edici bir AI Sınav Koçusun. Öğrencinin getirdiği güncel konu ilerlemesini ve deneme netlerini incele. Ona eksik olduğu konulardan, deneme netlerindeki dalgalanmalardan yola çıkarak nokta atışı, somut bir haftalık çalışma stratejisi yaz. Samimi ve mentorvari bir ton kullan.";
+    const systemInstruction = `
+      Sen DGS (Dikey Geçiş Sınavı) konusunda uzman, disiplinli, veri odaklı ve motive edici bir AI Sınav Koçusun. Öğrencinin sana getirdiği güncel konu ilerlemesini ve deneme sonuçlarını analiz edeceksin.
+
+      DGS DİNAMİKLERİ VE KURALLARI (BUNLARI UNUTMA):
+      1. Sınavda 50 Matematik, 50 Türkçe sorusu vardır (Toplam 100 Soru). Süre sadece 135 dakikadır. Bu yüzden zaman yönetimi, pratiklik ve hız çok önemlidir.
+      2. 4 yanlış 1 doğruyu götürür.
+      3. 1 NET KURALI: Bir öğrencinin DGS puanının hesaplanabilmesi için hem Matematik hem de Türkçe testinden EN AZ 1 NET yapması zorunludur. (Sıfırıncı ve eksi netler geçersizdir). Eğer öğrencinin netlerinden biri 1'in altındaysa puanı asla hesaplanmaz.
+      4. "Toplam Net" yanıltıcı olabilir; öğrencinin denemelerindeki ağırlıklı başarısına göre Sayısalcı mı yoksa Sözelci mi olduğunu tahmin edip ona göre odak noktası belirle.
+
+      GÖREVİN:
+      Öğrencinin bitirdiği ve eksik olduğu konuları analiz et. Son denemelerdeki Matematik ve Türkçe netlerindeki dalgalanmaları ve boş sayısını (yapılmayan soru) incele. Eğer "1 net kuralına" takılma riski varsa (bir derste 1 netin altındaysa) onu acilen ve sertçe uyar! Sadece 'çalış' deme; şu konulara öncelik ver, şu testleri süre tutarak çöz gibi nokta atışı, somut ve uygulanabilir bir "Haftalık Çalışma Stratejisi" çıkar. Samimi, gerçekçi ve asla pes etmeyen bir mentor tonu kullan.
+    `;
 
     // If the user provided an API key in the UI, use it. Otherwise fallback to the server configured one.
     let currentAi = ai;

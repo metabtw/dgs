@@ -380,16 +380,34 @@ function ExamsView({ exams, setExams }: { exams: Exam[], setExams: React.Dispatc
   const [formData, setFormData] = useState({
     name: '', math_correct: '', math_wrong: '', turk_correct: '', turk_wrong: ''
   });
+  const [errorMsg, setErrorMsg] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
+
+    const math_correct = parseInt(formData.math_correct) || 0;
+    const math_wrong = parseInt(formData.math_wrong) || 0;
+    const turk_correct = parseInt(formData.turk_correct) || 0;
+    const turk_wrong = parseInt(formData.turk_wrong) || 0;
+
+    if (math_correct + math_wrong > 50) {
+      setErrorMsg("Matematik doğru ve yanlışlarının toplamı 50'yi geçemez.");
+      return;
+    }
+    
+    if (turk_correct + turk_wrong > 50) {
+      setErrorMsg("Türkçe doğru ve yanlışlarının toplamı 50'yi geçemez.");
+      return;
+    }
+
     try {
       const payload = {
         name: formData.name,
-        math_correct: parseInt(formData.math_correct) || 0,
-        math_wrong: parseInt(formData.math_wrong) || 0,
-        turk_correct: parseInt(formData.turk_correct) || 0,
-        turk_wrong: parseInt(formData.turk_wrong) || 0,
+        math_correct,
+        math_wrong,
+        turk_correct,
+        turk_wrong,
       };
       const res = await fetch('/api/exams', {
         method: 'POST',
@@ -469,7 +487,8 @@ function ExamsView({ exams, setExams }: { exams: Exam[], setExams: React.Dispatc
             </div>
           </div>
 
-          <div className="md:col-span-5 flex justify-end mt-4">
+          <div className="md:col-span-5 flex flex-col items-end mt-4 gap-3">
+            {errorMsg && <p className="text-rose-400 text-sm font-medium bg-rose-500/10 px-4 py-2 rounded-lg border border-rose-500/20">{errorMsg}</p>}
             <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-6 rounded-xl transition-colors shadow-[0_0_15px_rgba(37,99,235,0.3)]">
               Hesapla ve Kaydet
             </button>
@@ -509,9 +528,18 @@ function ExamsView({ exams, setExams }: { exams: Exam[], setExams: React.Dispatc
                   <div className="text-xs text-slate-500">{exam.turk_correct}D {exam.turk_wrong}Y</div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 font-bold border border-blue-500/20">
-                    {exam.total_net}
-                  </span>
+                  {(exam.math_net < 1 || exam.turk_net < 1) ? (
+                    <div className="flex flex-col gap-1 items-start">
+                      <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-rose-500/10 text-rose-400 font-bold border border-rose-500/20 text-xs">
+                        Geçersiz
+                      </span>
+                      <span className="text-[10px] text-slate-500 line-through">{exam.total_net} Net</span>
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 font-bold border border-blue-500/20">
+                      {exam.total_net}
+                    </span>
+                  )}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <button onClick={() => handleDelete(exam.id)} className="text-slate-500 hover:text-rose-400 transition-colors p-2 rounded-lg hover:bg-rose-500/10">
