@@ -51,7 +51,7 @@ export default function App() {
   const [exams, setExams] = useState<Exam[]>([]);
 
   // DGS Exam Date (Mocked to June 30, 2026 for this context)
-  const dgsDate = new Date(2026, 5, 30); // Note: Month is 0-indexed in JS (5 = June)
+  const dgsDate = new Date(2026, 7, 19); // Note: Month is 0-indexed in JS (5 = June)
   const daysLeft = differenceInDays(dgsDate, new Date());
 
   // Fetch initial data
@@ -575,7 +575,6 @@ function CoachView({ subjects, exams, apiKey }: { subjects: Subject[], exams: Ex
           <Brain className="w-8 h-8 text-blue-400" />
         </div>
       </header>
-
       <div className="shrink-0 mb-6">
         <button 
           onClick={getAdvice} 
