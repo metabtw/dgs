@@ -1,0 +1,8 @@
+{
+  "name": "DGS Sınav Koçu",
+  "description": "DGS (Dikey Geçiş Sınavı) hazırlık sürecinizi takip eden, yapay zeka destekli sınav koçu. Konu takibi, deneme analizleri ve kişiselleştirilmiş stratejiler sunar.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
